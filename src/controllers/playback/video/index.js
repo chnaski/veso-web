@@ -1,6 +1,6 @@
 import escapeHtml from 'escape-html';
 import { playbackManager } from '../../../components/playback/playbackmanager';
-import SyncPlay from '../../../components/syncPlay/core';
+import SyncPlay from '../../../plugins/syncPlay/core';
 import browser from '../../../scripts/browser';
 import dom from '../../../scripts/dom';
 import inputManager from '../../../scripts/inputManager';
@@ -1247,17 +1247,6 @@ import { setBackdropTransparency, TRANSPARENCY_LEVEL } from '../../../components
             resetIdle();
         }
 
-        function onWindowTouchStart(e) {
-            clickedElement = e.target;
-            mouseIsDown = true;
-            resetIdle();
-        }
-
-        function onWindowTouchEnd() {
-            mouseIsDown = false;
-            resetIdle();
-        }
-
         function onWindowDragEnd() {
             // mousedown -> dragstart -> dragend !!! no mouseup :(
             mouseIsDown = false;
@@ -1414,12 +1403,12 @@ import { setBackdropTransparency, TRANSPARENCY_LEVEL } from '../../../components
                     capture: true,
                     passive: true
                 });
-                dom.addEventListener(window, 'touchstart', onWindowTouchStart, {
+                dom.addEventListener(window, 'touchstart', onWindowMouseDown, {
                     capture: true,
                     passive: true
                 });
                 ['touchend', 'touchcancel'].forEach((event) => {
-                    dom.addEventListener(window, event, onWindowTouchEnd, {
+                    dom.addEventListener(window, event, onWindowMouseUp, {
                         capture: true,
                         passive: true
                     });
@@ -1455,12 +1444,12 @@ import { setBackdropTransparency, TRANSPARENCY_LEVEL } from '../../../components
                 capture: true,
                 passive: true
             });
-            dom.removeEventListener(window, 'touchstart', onWindowTouchStart, {
+            dom.removeEventListener(window, 'touchstart', onWindowMouseDown, {
                 capture: true,
                 passive: true
             });
             ['touchend', 'touchcancel'].forEach((event) => {
-                dom.removeEventListener(window, event, onWindowTouchEnd, {
+                dom.removeEventListener(window, event, onWindowMouseUp, {
                     capture: true,
                     passive: true
                 });
@@ -1629,20 +1618,14 @@ import { setBackdropTransparency, TRANSPARENCY_LEVEL } from '../../../components
             const item = currentItem;
 
             // use markers based on chapters
-            if (item && item.Chapters && item.Chapters.length) {
-                const runtimeDuration = item.RunTimeTicks;
-
-                for (let i = 0, length = item.Chapters.length; i < length; i++) {
-                    const currentChapter = item.Chapters[i];
-
-                    const fraction = currentChapter.StartPositionTicks / runtimeDuration;
-
+            if (item?.Chapters?.length) {
+                item.Chapters.forEach(currentChapter => {
                     markers.push({
                         className: 'chapterMarker',
                         name: currentChapter.Name,
-                        progress: fraction
+                        progress: currentChapter.StartPositionTicks / item.RunTimeTicks
                     });
-                }
+                });
             }
 
             return markers;
