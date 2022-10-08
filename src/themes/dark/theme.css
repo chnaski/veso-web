@@ -511,7 +511,7 @@ html {
 }
 
 #dialogToc .bookplayerButtonIcon:hover {
-    color: #00a4dc;
+    color: #d61e30;
 }
 
 #dialogToc .toc li a:link {
@@ -520,5 +520,5 @@ html {
 
 #dialogToc .toc li a:active,
 #dialogToc .toc li a:hover {
-    color: #00a4dc;
+    color: #d61e30;
 }
